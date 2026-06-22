@@ -1,0 +1,2435 @@
+INCLUDE Irvine32.inc
+
+.data
+prompt1 BYTE "Enter first number: ",0
+prompt2 BYTE "Enter second number: ",0
+
+sumMsg BYTE "Sum: ",0
+subMsg BYTE "Difference: ",0
+
+numA DWORD ?
+numB DWORD ?
+
+sumResult DWORD ?
+subResult DWORD ?
+
+.code
+
+; ------------------------------------------------------------
+; AddTwo
+;
+; Stack Layout after PUSH EAX, PUSH EBX:
+; [ESP+0]  = saved EBX
+; [ESP+4]  = saved EAX
+; [ESP+8]  = second argument
+; [ESP+12] = first argument
+;
+; Preserves: EAX, EBX
+; Output: sumResult = arg1 + arg2
+; ------------------------------------------------------------
+AddTwo PROC
+
+    PUSH EAX
+    PUSH EBX
+
+    MOV EAX,[ESP+12]
+    MOV EBX,[ESP+8]
+
+    ADD EAX,EBX
+
+    MOV sumResult,EAX
+
+    POP EBX
+    POP EAX
+
+    RET
+
+AddTwo ENDP
+
+; ------------------------------------------------------------
+; SubTwo
+;
+; Stack Layout after PUSH EAX, PUSH EBX:
+; [ESP+0]  = saved EBX
+; [ESP+4]  = saved EAX
+; [ESP+8]  = second argument
+; [ESP+12] = first argument
+;
+; Preserves: EAX, EBX
+; Output: subResult = arg1 - arg2
+; ------------------------------------------------------------
+SubTwo PROC
+
+    PUSH EAX
+    PUSH EBX
+
+    MOV EAX,[ESP+12]
+    MOV EBX,[ESP+8]
+
+    SUB EAX,EBX
+
+    MOV subResult,EAX
+
+    POP EBX
+    POP EAX
+
+    RET
+
+SubTwo ENDP
+
+main PROC
+
+    MOV EDX,OFFSET prompt1
+    CALL WriteString
+    CALL ReadInt
+    MOV numA,EAX
+
+    MOV EDX,OFFSET prompt2
+    CALL WriteString
+    CALL ReadInt
+    MOV numB,EAX
+
+    PUSH numA
+    PUSH numB
+    CALL AddTwo
+    ADD ESP,8
+
+    MOV EDX,OFFSET sumMsg
+    CALL WriteString
+    MOV EAX,sumResult
+    CALL WriteInt
+    CALL Crlf
+
+    PUSH numA
+    PUSH numB
+    CALL SubTwo
+    ADD ESP,8
+
+    MOV EDX,OFFSET subMsg
+    CALL WriteString
+    MOV EAX,subResult
+    CALL WriteInt
+    CALL Crlf
+
+    exit
+main ENDP
+
+END main
+
+
+
+
+
+
+
+
+
+
+
+INCLUDE Irvine32.inc
+
+.data
+
+marks DWORD 5 DUP(0)
+
+total DWORD 0
+avg DWORD 0
+highMark DWORD 0
+lowMark DWORD 0
+
+msgInput BYTE "Enter marks for Student ",0
+colon BYTE ": ",0
+
+invalidMsg BYTE "Invalid marks. Enter 0-100: ",0
+
+studentMsg BYTE "Student ",0
+
+totalMsg BYTE "Total Marks: ",0
+avgMsg BYTE "Average Marks: ",0
+highMsg BYTE "Highest Mark: ",0
+lowMsg BYTE "Lowest Mark: ",0
+
+.code
+
+; ------------------------------------------------------------
+PrintMarks PROC
+
+    PUSH EAX
+    PUSH EBX
+    PUSH ECX
+    PUSH EDX
+    PUSH ESI
+
+    MOV ECX,LENGTHOF marks
+    MOV ESI,0
+    MOV EBX,1
+
+L1:
+    MOV EDX,OFFSET studentMsg
+    CALL WriteString
+
+    MOV EAX,EBX
+    CALL WriteInt
+
+    MOV EDX,OFFSET colon
+    CALL WriteString
+
+    MOV EAX,marks[ESI]
+    CALL WriteInt
+    CALL Crlf
+
+    INC EBX
+    ADD ESI,TYPE marks
+
+    LOOP L1
+
+    POP ESI
+    POP EDX
+    POP ECX
+    POP EBX
+    POP EAX
+
+    RET
+
+PrintMarks ENDP
+
+; ------------------------------------------------------------
+CalcTotal PROC
+
+    PUSH EAX
+    PUSH ECX
+    PUSH ESI
+
+    MOV total,0
+
+    MOV ECX,LENGTHOF marks
+    MOV ESI,0
+
+L2:
+    MOV EAX,marks[ESI]
+    ADD total,EAX
+
+    ADD ESI,TYPE marks
+
+    LOOP L2
+
+    POP ESI
+    POP ECX
+    POP EAX
+
+    RET
+
+CalcTotal ENDP
+
+; ------------------------------------------------------------
+CalcAverage PROC
+
+    PUSH EAX
+    PUSH EBX
+
+    MOV EAX,total
+    MOV EBX,0
+
+AvgLoop:
+
+    CMP EAX,5
+    JL AvgDone
+
+    SUB EAX,5
+    INC EBX
+
+    JMP AvgLoop
+
+AvgDone:
+
+    MOV avg,EBX
+
+    POP EBX
+    POP EAX
+
+    RET
+
+CalcAverage ENDP
+
+; ------------------------------------------------------------
+FindHighLow PROC
+
+    PUSH EAX
+    PUSH EBX
+    PUSH ECX
+    PUSH ESI
+
+    MOV ESI,0
+
+    MOV EAX,marks[ESI]
+    MOV EBX,marks[ESI]
+
+    MOV highMark,EAX
+    MOV lowMark,EBX
+
+    ADD ESI,TYPE marks
+
+    MOV ECX,LENGTHOF marks-1
+
+L3:
+
+    MOV EDX,marks[ESI]
+
+    CMP EDX,highMark
+    JLE CheckLow
+
+    MOV highMark,EDX
+
+CheckLow:
+
+    CMP EDX,lowMark
+    JGE ContinueLoop
+
+    MOV lowMark,EDX
+
+ContinueLoop:
+
+    ADD ESI,TYPE marks
+
+    LOOP L3
+
+    POP ESI
+    POP ECX
+    POP EBX
+    POP EAX
+
+    RET
+
+FindHighLow ENDP
+
+main PROC
+
+    MOV ECX,5
+    MOV ESI,0
+    MOV EBX,1
+
+InputLoop:
+
+    MOV EDX,OFFSET msgInput
+    CALL WriteString
+
+    MOV EAX,EBX
+    CALL WriteInt
+
+    MOV EDX,OFFSET colon
+    CALL WriteString
+
+ReadAgain:
+
+    CALL ReadInt
+
+    CMP EAX,0
+    JL Invalid
+
+    CMP EAX,100
+    JG Invalid
+
+    JMP StoreValue
+
+Invalid:
+
+    MOV EDX,OFFSET invalidMsg
+    CALL WriteString
+
+    JMP ReadAgain
+
+StoreValue:
+
+    MOV marks[ESI],EAX
+
+    ADD ESI,TYPE marks
+    INC EBX
+
+    LOOP InputLoop
+
+    CALL Crlf
+
+    CALL PrintMarks
+
+    CALL CalcTotal
+
+    MOV EDX,OFFSET totalMsg
+    CALL WriteString
+    MOV EAX,total
+    CALL WriteInt
+    CALL Crlf
+
+    CALL CalcAverage
+
+    MOV EDX,OFFSET avgMsg
+    CALL WriteString
+    MOV EAX,avg
+    CALL WriteInt
+    CALL Crlf
+
+    CALL FindHighLow
+
+    MOV EDX,OFFSET highMsg
+    CALL WriteString
+    MOV EAX,highMark
+    CALL WriteInt
+    CALL Crlf
+
+    MOV EDX,OFFSET lowMsg
+    CALL WriteString
+    MOV EAX,lowMark
+    CALL WriteInt
+    CALL Crlf
+
+    exit
+
+main ENDP
+
+END main
+
+
+
+
+
+
+
+
+INCLUDE Irvine32.inc
+
+.data
+value DWORD 25
+
+msg1 BYTE "Multiply by 2 using SHL: ",0
+msg2 BYTE "Multiply by 8 using SHL: ",0
+msg3 BYTE "Multiply by 7 using SHL+SUB: ",0
+msg4 BYTE "Multiply by 9 using SHL+ADD: ",0
+
+msg5 BYTE "Multiply by 2 using MUL: ",0
+msg6 BYTE "Multiply by 8 using MUL: ",0
+msg7 BYTE "Multiply by 7 using MUL: ",0
+msg8 BYTE "Multiply by 9 using MUL: ",0
+
+.code
+main PROC
+
+; x2 using SHL
+mov eax,value
+shl eax,1
+mov edx,OFFSET msg1
+call WriteString
+call WriteInt
+call Crlf
+
+; x8 using SHL
+mov eax,value
+shl eax,3
+mov edx,OFFSET msg2
+call WriteString
+call WriteInt
+call Crlf
+
+; x7 = (x*8)-x
+mov eax,value
+mov ebx,eax
+shl eax,3
+sub eax,ebx
+mov edx,OFFSET msg3
+call WriteString
+call WriteInt
+call Crlf
+
+; x9 = (x*8)+x
+mov eax,value
+mov ebx,eax
+shl eax,3
+add eax,ebx
+mov edx,OFFSET msg4
+call WriteString
+call WriteInt
+call Crlf
+
+; MUL x2
+mov eax,value
+mov ebx,2
+mul ebx
+mov edx,OFFSET msg5
+call WriteString
+call WriteInt
+call Crlf
+
+; MUL x8
+mov eax,value
+mov ebx,8
+mul ebx
+mov edx,OFFSET msg6
+call WriteString
+call WriteInt
+call Crlf
+
+; MUL x7
+mov eax,value
+mov ebx,7
+mul ebx
+mov edx,OFFSET msg7
+call WriteString
+call WriteInt
+call Crlf
+
+; MUL x9
+mov eax,value
+mov ebx,9
+mul ebx
+mov edx,OFFSET msg8
+call WriteString
+call WriteInt
+call Crlf
+
+exit
+main ENDP
+END main
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+INCLUDE Irvine32.inc
+
+.data
+value BYTE 95h
+
+msg1 BYTE "ROL by 2 = ",0
+msg2 BYTE "ROR by 3 = ",0
+msg3 BYTE "RCL by 1 = ",0
+msg4 BYTE "RCR by 1 = ",0
+msg5 BYTE "Recovered Original = ",0
+
+.code
+main PROC
+
+; ROL
+mov al,value
+rol al,2
+
+movzx eax,al
+mov edx,OFFSET msg1
+call WriteString
+call WriteHex
+call Crlf
+
+; ROR
+mov al,value
+ror al,3
+
+movzx eax,al
+mov edx,OFFSET msg2
+call WriteString
+call WriteHex
+call Crlf
+
+; RCL
+stc
+mov al,value
+rcl al,1
+
+movzx eax,al
+mov edx,OFFSET msg3
+call WriteString
+call WriteHex
+call Crlf
+
+; RCR
+stc
+mov al,value
+rcr al,1
+
+movzx eax,al
+mov edx,OFFSET msg4
+call WriteString
+call WriteHex
+call Crlf
+
+; Encryption + Decryption demo
+mov al,value
+
+rol al,2
+ror al,2
+
+movzx eax,al
+mov edx,OFFSET msg5
+call WriteString
+call WriteHex
+call Crlf
+
+exit
+main ENDP
+END main
+
+
+
+
+
+
+
+
+INCLUDE Irvine32.inc
+
+.data
+
+profitPos DWORD 125
+profitNeg SDWORD -125
+units DWORD 4
+
+msg1 BYTE "DIV Quotient = ",0
+msg2 BYTE "DIV Remainder = ",0
+
+msg3 BYTE "IDIV Quotient = ",0
+msg4 BYTE "IDIV Remainder = ",0
+
+msg5 BYTE "SAR Result = ",0
+
+.code
+main PROC
+
+; -----------------------
+; Unsigned DIV
+; -----------------------
+
+mov eax,profitPos
+mov edx,0
+mov ebx,units
+
+div ebx
+
+mov ecx,edx
+
+mov edx,OFFSET msg1
+call WriteString
+call WriteInt
+call Crlf
+
+mov eax,ecx
+mov edx,OFFSET msg2
+call WriteString
+call WriteInt
+call Crlf
+
+; -----------------------
+; Signed IDIV
+; -----------------------
+
+mov eax,profitNeg
+cdq
+mov ebx,units
+
+idiv ebx
+
+mov ecx,edx
+
+mov edx,OFFSET msg3
+call WriteString
+call WriteInt
+call Crlf
+
+mov eax,ecx
+mov edx,OFFSET msg4
+call WriteString
+call WriteInt
+call Crlf
+
+; -----------------------
+; SAR divide by 2
+; -----------------------
+
+mov eax,profitNeg
+sar eax,1
+
+mov edx,OFFSET msg5
+call WriteString
+call WriteInt
+call Crlf
+
+exit
+main ENDP
+END main
+
+
+
+
+
+
+
+
+
+INCLUDE Irvine32.inc
+
+.data
+myName BYTE "Username",0
+rollNo BYTE "BCS-XX-XXX",0
+msg BYTE "Press Enter to Exit...",0
+
+.code
+main PROC
+
+```
+; Name at row 0 col 0 (Yellow)
+mov dh,0
+mov dl,0
+call Gotoxy
+
+mov eax,yellow
+call SetTextColor
+
+mov edx,OFFSET myName
+call WriteString
+
+; Roll number at row 12 col 35 (Light Cyan)
+mov dh,12
+mov dl,35
+call Gotoxy
+
+mov eax,lightCyan
+call SetTextColor
+
+mov edx,OFFSET rollNo
+call WriteString
+
+; Message at row 23 col 20 (Light Red)
+mov dh,23
+mov dl,20
+call Gotoxy
+
+mov eax,lightRed
+call SetTextColor
+
+mov edx,OFFSET msg
+call WriteString
+
+call WaitMsg
+
+exit
+```
+
+main ENDP
+END main
+
+
+
+
+
+
+
+INCLUDE Irvine32.inc
+
+.data
+digit1 BYTE '7'
+digit2 BYTE '6'
+
+sumMsg BYTE "Sum: ",0
+diffMsg BYTE "Difference: ",0
+prodMsg BYTE "Product: ",0
+
+.code
+main PROC
+
+; --------------------
+; ADD using AAA
+; --------------------
+
+```
+mov al,digit1
+sub al,'0'
+
+mov bl,digit2
+sub bl,'0'
+
+add al,bl
+aaa
+
+mov edx,OFFSET sumMsg
+call WriteString
+
+add ah,'0'
+mov al,ah
+call WriteChar
+
+mov al,'3'
+call WriteChar
+call Crlf
+```
+
+; --------------------
+; SUB using AAS
+; --------------------
+
+```
+mov al,digit1
+sub al,'0'
+
+mov bl,digit2
+sub bl,'0'
+
+sub al,bl
+aas
+
+mov edx,OFFSET diffMsg
+call WriteString
+
+add al,'0'
+call WriteChar
+call Crlf
+```
+
+; --------------------
+; MUL using AAM
+; --------------------
+
+```
+mov al,digit1
+sub al,'0'
+
+mov bl,digit2
+sub bl,'0'
+
+mul bl
+aam
+
+mov edx,OFFSET prodMsg
+call WriteString
+
+add ah,'0'
+mov al,ah
+call WriteChar
+
+mov al,2
+add al,'0'
+call WriteChar
+
+call Crlf
+
+exit
+```
+
+main ENDP
+END main
+
+
+
+
+
+
+
+INCLUDE Irvine32.inc
+
+.data
+
+price1 BYTE 47h
+price2 BYTE 36h
+discount BYTE 15h
+
+msg1 BYTE "Total Price: ",0
+msg2 BYTE "After Discount: ",0
+
+total BYTE ?
+finalPrice BYTE ?
+
+.code
+main PROC
+
+```
+mov eax,lightGreen
+call SetTextColor
+
+; Total Price
+mov al,price1
+add al,price2
+daa
+
+mov total,al
+
+mov edx,OFFSET msg1
+call WriteString
+
+movzx eax,total
+call WriteHex
+
+call Crlf
+
+; After Discount
+mov al,total
+sub al,discount
+das
+
+mov finalPrice,al
+
+mov edx,OFFSET msg2
+call WriteString
+
+movzx eax,finalPrice
+call WriteHex
+
+call Crlf
+
+exit
+```
+
+main ENDP
+END main
+
+
+
+
+
+
+
+; -------------------------------
+; validator.asm
+; Password comparison module
+; -------------------------------
+
+INCLUDE Irvine32.inc
+
+.code
+
+PUBLIC CheckPassword
+
+; -------------------------------------------------------
+; CheckPassword
+; Compares two strings using REPE CMPSB
+;
+; Input:
+;   ESI = address of user password
+;   EDI = address of stored password
+;
+; Process:
+;   Uses REPE CMPSB to compare byte-by-byte
+;
+; Output:
+;   EAX = 1 → match
+;   EAX = 0 → mismatch
+; -------------------------------------------------------
+
+CheckPassword PROC
+
+    push ecx            ; save ECX (loop counter protection)
+
+    mov ecx,20          ; max password length comparison
+
+    cld                 ; ensure forward direction
+
+    repe cmpsb          ; compare bytes [ESI] vs [EDI]
+
+    jne NotMatch        ; if mismatch found → fail
+
+    mov eax,1           ; passwords match
+    jmp Done
+
+NotMatch:
+    mov eax,0           ; passwords do not match
+
+Done:
+    pop ecx             ; restore ECX
+    ret
+
+CheckPassword ENDP
+
+END
+
+
+
+
+
+
+
+
+; -------------------------------
+; main.asm
+; Password system with 3 attempts
+; -------------------------------
+
+INCLUDE Irvine32.inc
+
+CheckPassword PROTO
+
+.data
+
+storedPwd BYTE "coal123",0
+userPwd BYTE 20 DUP(0)
+
+msg1 BYTE "Enter Password: ",0
+grantMsg BYTE "Access Granted",0
+denyMsg BYTE "Access Denied",0
+lockMsg BYTE "System Locked",0
+
+.code
+
+main PROC
+
+    mov ebx,3              ; attempt counter = 3
+
+; -------------------------------
+; LOGIN LOOP (max 3 attempts)
+; -------------------------------
+TryAgain:
+
+    mov edx,OFFSET msg1
+    call WriteString
+
+    ; read user input
+    mov edx,OFFSET userPwd
+    mov ecx,SIZEOF userPwd
+    call ReadString
+
+    ; set pointers for comparison
+    mov esi,OFFSET userPwd
+    mov edi,OFFSET storedPwd
+
+    call CheckPassword     ; EAX = 1 or 0
+
+    cmp eax,1
+    je AccessOK
+
+    ; wrong password case
+    mov edx,OFFSET denyMsg
+    call WriteString
+    call Crlf
+
+    dec ebx
+    jnz TryAgain
+
+    ; if all attempts fail
+    mov edx,OFFSET lockMsg
+    call WriteString
+    jmp ExitProgram
+
+AccessOK:
+
+    mov edx,OFFSET grantMsg
+    call WriteString
+
+ExitProgram:
+
+    exit
+
+main ENDP
+
+END main
+
+
+
+
+
+
+
+; -------------------------------
+; String Processing Program
+; Uses SCASB, LODSB, MOVSB, STOSB
+; -------------------------------
+
+INCLUDE Irvine32.inc
+
+.data
+
+buffer BYTE 100 DUP(0)
+buffer2 BYTE 100 DUP(0)
+
+prompt BYTE "Enter String: ",0
+lenMsg BYTE "Length: ",0
+upperMsg BYTE "Uppercase letters: ",0
+clearMsg BYTE "Buffer cleared.",0
+
+length DWORD ?
+upperCount DWORD ?
+
+.code
+
+main PROC
+
+; -------------------------------
+; INPUT STRING
+; -------------------------------
+    mov edx,OFFSET prompt
+    call WriteString
+
+    mov edx,OFFSET buffer
+    mov ecx,100
+    call ReadString
+
+; -------------------------------
+; FIND LENGTH USING SCASB
+; -------------------------------
+    mov edi,OFFSET buffer
+    mov ecx,100
+    mov al,0               ; search NULL terminator
+
+    cld
+    repne scasb            ; scan until AL = 0
+
+    ; compute length = 100 - remaining - 1
+    mov eax,100
+    sub eax,ecx
+    dec eax
+
+    mov length,eax
+
+    mov edx,OFFSET lenMsg
+    call WriteString
+    mov eax,length
+    call WriteInt
+    call Crlf
+
+; -------------------------------
+; COUNT UPPERCASE USING LODSB
+; -------------------------------
+    mov esi,OFFSET buffer
+    mov ecx,length
+
+    mov upperCount,0
+
+CountLoop:
+    lodsb                  ; AL = [ESI], ESI++
+
+    cmp al,'A'
+    jb Skip
+
+    cmp al,'Z'
+    ja Skip
+
+    inc upperCount
+
+Skip:
+    loop CountLoop
+
+    mov edx,OFFSET upperMsg
+    call WriteString
+    mov eax,upperCount
+    call WriteInt
+    call Crlf
+
+; -------------------------------
+; COPY STRING USING MOVSB
+; -------------------------------
+    mov esi,OFFSET buffer
+    mov edi,OFFSET buffer2
+    mov ecx,length
+    inc ecx               ; include NULL terminator
+
+    cld
+    rep movsb
+
+; -------------------------------
+; CLEAR ORIGINAL BUFFER USING STOSB
+; -------------------------------
+    mov edi,OFFSET buffer
+    mov ecx,100
+    mov al,0
+
+    cld
+    rep stosb
+
+    mov edx,OFFSET clearMsg
+    call WriteString
+    call Crlf
+
+    exit
+
+main ENDP
+END main
+
+
+
+
+
+
+
+
+; -------------------------------
+; Gradebook System (4x5 Matrix)
+; Nested loops + procedures
+; -------------------------------
+
+INCLUDE Irvine32.inc
+
+.data
+
+scores DWORD \
+80,75,90,85,70,\
+60,78,88,92,80,\
+95,85,89,91,87,\
+70,72,68,75,80
+
+studentMsg BYTE "Student ",0
+totalMsg BYTE " Total = ",0
+avgMsg BYTE " Average = ",0
+highMsg BYTE "Highest Score = ",0
+
+highest DWORD 0
+
+.code
+
+; -------------------------------------------------------
+; DisplayMatrix PROC
+; Displays 4x5 matrix row-wise
+;
+; Preserves registers using PUSH/POP
+; -------------------------------------------------------
+
+DisplayMatrix PROC
+
+    push eax
+    push ebx
+    push ecx
+    push edx
+    push esi
+
+    mov esi,OFFSET scores
+    mov ecx,4              ; 4 students
+    mov ebx,1              ; student number
+
+RowLoop:
+
+    mov edx,OFFSET studentMsg
+    call WriteString
+
+    mov eax,ebx
+    call WriteInt
+    call Crlf
+
+    push ecx               ; save outer loop counter
+
+    mov ecx,5              ; 5 quizzes per student
+
+PrintCols:
+
+    mov eax,[esi]          ; load score
+    call WriteInt
+
+    mov al,' '
+    call WriteChar
+    mov al,' '
+    call WriteChar
+
+    add esi,TYPE DWORD
+
+    loop PrintCols
+
+    call Crlf
+
+    pop ecx                ; restore outer loop
+    inc ebx
+
+    loop RowLoop
+
+    pop esi
+    pop edx
+    pop ecx
+    pop ebx
+    pop eax
+
+    ret
+
+DisplayMatrix ENDP
+
+; -------------------------------
+; MAIN PROGRAM
+; -------------------------------
+
+main PROC
+
+    call DisplayMatrix
+
+    ; initialize traversal
+    mov esi,OFFSET scores
+    mov ecx,4
+    mov ebx,1
+
+StudentLoop:
+
+    push ecx              ; protect outer loop
+
+    mov eax,0
+    mov ecx,5
+
+QuizLoop:
+
+    add eax,[esi]         ; total per student
+
+    ; check highest score
+    cmp [esi],highest
+    jbe SkipHigh
+
+    mov edx,[esi]
+    mov highest,edx
+
+SkipHigh:
+
+    add esi,TYPE DWORD
+    loop QuizLoop
+
+    ; print student total
+    mov edx,OFFSET studentMsg
+    call WriteString
+
+    mov eax,ebx
+    call WriteInt
+
+    mov edx,OFFSET totalMsg
+    call WriteString
+    call WriteInt
+
+    ; compute average
+    mov ebx,5
+    mov edx,0
+    div ebx
+
+    mov edx,OFFSET avgMsg
+    call WriteString
+    call WriteInt
+    call Crlf
+
+    inc ebx
+    pop ecx
+    loop StudentLoop
+
+    ; print highest score
+    mov edx,OFFSET highMsg
+    call WriteString
+    mov eax,highest
+    call WriteInt
+    call Crlf
+
+    exit
+
+main ENDP
+
+END main
+
+
+
+
+
+
+Temperature Converter
+INCLUDE Irvine32.inc
+
+.data
+
+prompt BYTE "Enter Celsius: ",0
+
+celsiusMsg BYTE "Celsius : ",0
+fahrMsg BYTE "Fahrenheit : ",0
+kelvinMsg BYTE "Kelvin : ",0
+
+
+temp DWORD ?
+
+.code
+
+
+; =====================================================
+; CelsiusToFahrenheit
+;
+; Stack Frame:
+;
+; [EBP+8]  = Celsius argument
+;
+; LOCAL tempResult
+;
+; Uses:
+; EBX preserved
+;
+; Returns:
+; EAX = Fahrenheit
+;
+; Formula:
+; F = (C*9)/5 + 32
+; =====================================================
+
+
+CelsiusToFahrenheit PROC USES ebx
+
+; create stack frame
+
+push ebp
+mov ebp,esp
+
+
+LOCAL tempResult:DWORD
+
+
+; get Celsius value
+
+mov eax,[ebp+8]
+
+
+; multiply C * 9
+
+mov ebx,9
+
+mul ebx
+
+
+; divide by 5
+
+mov ebx,5
+
+div ebx
+
+
+; add 32
+
+add eax,32
+
+
+; store local variable
+
+mov tempResult,eax
+
+
+; return value already in EAX
+
+
+pop ebp
+
+ret 4
+
+CelsiusToFahrenheit ENDP
+
+
+
+
+
+; =====================================================
+; CelsiusToKelvin
+;
+; [EBP+8] = Celsius
+;
+; Returns:
+; EAX = Celsius + 273
+;
+; =====================================================
+
+
+CelsiusToKelvin PROC USES ebx
+
+
+push ebp
+mov ebp,esp
+
+
+mov eax,[ebp+8]
+
+
+add eax,273
+
+
+pop ebp
+
+ret 4
+
+
+CelsiusToKelvin ENDP
+
+
+
+
+
+main PROC
+
+
+; ask user
+
+mov edx,OFFSET prompt
+
+call WriteString
+
+call ReadInt
+
+
+; save Celsius
+
+mov temp,eax
+
+
+
+; =============================
+; Display Celsius
+; =============================
+
+
+mov edx,OFFSET celsiusMsg
+
+call WriteString
+
+
+mov eax,temp
+
+call WriteInt
+
+call Crlf
+
+
+
+; =============================
+; Fahrenheit
+; =============================
+
+
+push temp
+
+call CelsiusToFahrenheit
+
+
+mov edx,OFFSET fahrMsg
+
+call WriteString
+
+
+call WriteInt
+
+call Crlf
+
+
+
+; =============================
+; Kelvin
+; =============================
+
+
+push temp
+
+call CelsiusToKelvin
+
+
+mov edx,OFFSET kelvinMsg
+
+call WriteString
+
+
+call WriteInt
+
+call Crlf
+
+
+
+exit
+
+main ENDP
+
+
+END main
+TASK 2 — Grade Analyzer Using PROTO + INVOKE
+INCLUDE Irvine32.inc
+
+
+.data
+
+
+scores DWORD 70,85,90,60,95,75
+
+
+sumResult DWORD ?
+avgResult DWORD ?
+
+
+scoreMsg BYTE "Scores : ",0
+sumMsg BYTE "Sum : ",0
+avgMsg BYTE "Average : ",0
+highMsg BYTE "Highest : ",0
+
+
+
+.code
+
+
+; =====================================================
+; Procedure declarations
+; =====================================================
+
+
+ComputeSum PROTO, pArr:PTR DWORD, n:DWORD
+
+ComputeAvg PROTO, total:DWORD, n:DWORD
+
+FindHighest PROTO, pArr:PTR DWORD, n:DWORD
+
+
+
+
+
+; =====================================================
+; ComputeSum
+;
+; Input:
+; address of array
+; number of elements
+;
+; Uses:
+; ESI and ECX preserved
+;
+; Return:
+; EAX = total
+;
+; =====================================================
+
+
+ComputeSum PROC USES esi ecx, pArr:PTR DWORD, n:DWORD
+
+
+LOCAL accumulator:DWORD
+
+
+mov accumulator,0
+
+
+mov esi,pArr
+
+mov ecx,n
+
+
+
+L1:
+
+
+mov eax,[esi]
+
+
+add accumulator,eax
+
+
+add esi,4
+
+
+loop L1
+
+
+
+mov eax,accumulator
+
+
+ret
+
+ComputeSum ENDP
+
+
+
+
+
+; =====================================================
+; ComputeAvg
+;
+; total / n
+;
+; Return EAX = average
+;
+; =====================================================
+
+
+ComputeAvg PROC total:DWORD,n:DWORD
+
+
+
+mov eax,total
+
+
+mov ebx,n
+
+
+xor edx,edx
+
+
+div ebx
+
+
+
+ret
+
+
+ComputeAvg ENDP
+
+
+
+
+
+; =====================================================
+; FindHighest
+;
+; compares array values
+;
+; Return:
+; EAX = highest number
+;
+; =====================================================
+
+
+FindHighest PROC USES esi ecx, pArr:PTR DWORD,n:DWORD
+
+
+
+mov esi,pArr
+
+
+mov ecx,n
+
+
+
+; first value as highest
+
+mov eax,[esi]
+
+
+add esi,4
+
+
+dec ecx
+
+
+
+L2:
+
+
+cmp [esi],eax
+
+
+JA updateHigh
+
+
+jmp next
+
+
+
+updateHigh:
+
+mov eax,[esi]
+
+
+
+next:
+
+add esi,4
+
+
+loop L2
+
+
+
+ret
+
+
+FindHighest ENDP
+
+
+
+
+
+
+
+main PROC
+
+
+
+; ===========================
+; Print Scores
+; ===========================
+
+
+mov edx,OFFSET scoreMsg
+
+call WriteString
+
+
+
+mov esi,OFFSET scores
+
+mov ecx,6
+
+
+
+printLoop:
+
+
+mov eax,[esi]
+
+
+call WriteInt
+
+
+mov al,' '
+
+call WriteChar
+
+
+add esi,4
+
+
+loop printLoop
+
+
+call Crlf
+
+
+
+
+
+; ===========================
+; Compute Sum
+; ===========================
+
+
+INVOKE ComputeSum, ADDR scores,6
+
+
+mov sumResult,eax
+
+
+
+
+
+; ===========================
+; Compute Average
+; ===========================
+
+
+INVOKE ComputeAvg,sumResult,6
+
+
+mov avgResult,eax
+
+
+
+
+
+; ===========================
+; Find Highest
+; ===========================
+
+
+INVOKE FindHighest,ADDR scores,6
+
+
+; EAX already highest
+
+
+
+
+
+; ===========================
+; Display Sum
+; ===========================
+
+
+mov edx,OFFSET sumMsg
+
+call WriteString
+
+
+mov eax,sumResult
+
+call WriteInt
+
+call Crlf
+
+
+
+
+
+; Display Average
+
+
+mov edx,OFFSET avgMsg
+
+call WriteString
+
+
+mov eax,avgResult
+
+call WriteInt
+
+call Crlf
+
+
+
+
+
+; Display Highest
+
+
+mov edx,OFFSET highMsg
+
+call WriteString
+
+
+call WriteInt
+
+
+exit
+
+
+main ENDP
+
+
+END main
+
+
+
+
+
+
+
+
+
+Multimodule Password Validator
+
+You need 2 files:
+
+main.asm
+validator.asm
+validator.asm
+
+This file contains only password checking.
+
+INCLUDE Irvine32.inc
+
+
+.code
+
+
+PUBLIC CheckPassword
+
+
+;-------------------------------------
+; CheckPassword
+;
+; Input:
+; ESI = user password address
+; EDI = stored password address
+;
+; Output:
+; EAX = 1 match
+; EAX = 0 wrong
+;
+; Uses:
+; REPE CMPSB
+;
+;-------------------------------------
+
+
+CheckPassword PROC
+
+
+push ecx
+push esi
+push edi
+
+
+mov ecx,20        ; compare 20 characters
+
+
+repe cmpsb        ; compare byte by byte
+
+
+jne NotMatch
+
+
+
+; matched
+
+mov eax,1
+
+jmp Done
+
+
+
+NotMatch:
+
+mov eax,0
+
+
+
+Done:
+
+
+pop edi
+pop esi
+pop ecx
+
+
+ret
+
+
+CheckPassword ENDP
+
+
+END
+main.asm
+INCLUDE Irvine32.inc
+
+
+EXTERN CheckPassword:PROC
+
+
+.data
+
+
+stored BYTE "12345",0
+
+
+input BYTE 50 DUP(?)
+
+
+msg1 BYTE "Enter password: ",0
+
+grant BYTE "Access Granted",0
+
+deny BYTE "Access Denied",0
+
+lockMsg BYTE "System Locked",0
+
+
+.code
+
+
+main PROC
+
+
+
+mov ecx,3          ; 3 attempts
+
+
+Again:
+
+
+mov edx,OFFSET msg1
+
+call WriteString
+
+
+
+mov edx,OFFSET input
+
+mov ecx,50
+
+call ReadString
+
+
+
+; send addresses
+
+mov esi,OFFSET input
+
+mov edi,OFFSET stored
+
+
+
+call CheckPassword
+
+
+
+cmp eax,1
+
+
+je Success
+
+
+
+; wrong
+
+mov edx,OFFSET deny
+
+call WriteString
+
+call Crlf
+
+
+
+loop Again
+
+
+
+; after 3 failures
+
+
+mov edx,OFFSET lockMsg
+
+call WriteString
+
+
+jmp ExitProgram
+
+
+
+
+Success:
+
+
+mov edx,OFFSET grant
+
+call WriteString
+
+
+
+
+ExitProgram:
+
+
+exit
+
+
+main ENDP
+
+
+END main
+TASK 2 — String Processing
+INCLUDE Irvine32.inc
+
+
+.data
+
+
+buffer BYTE 100 DUP(?)
+
+copyBuffer BYTE 100 DUP(?)
+
+
+msg BYTE "Enter text: ",0
+
+lenMsg BYTE "Length: ",0
+
+upperMsg BYTE "Uppercase letters: ",0
+
+
+.code
+
+
+main PROC
+
+
+
+; INPUT STRING
+
+
+mov edx,OFFSET msg
+
+call WriteString
+
+
+mov edx,OFFSET buffer
+
+mov ecx,100
+
+call ReadString
+
+
+
+
+;----------------------------
+; FIND LENGTH USING SCASB
+;----------------------------
+
+
+mov edi,OFFSET buffer
+
+
+mov ecx,100
+
+
+mov al,0
+
+
+
+repne scasb
+
+
+
+; calculate length
+
+mov eax,100
+
+sub eax,ecx
+
+dec eax
+
+
+
+mov edx,OFFSET lenMsg
+
+call WriteString
+
+
+call WriteInt
+
+call Crlf
+
+
+
+
+
+;----------------------------
+; COUNT UPPERCASE
+;----------------------------
+
+
+mov esi,OFFSET buffer
+
+
+mov ecx,eax      ; length
+
+
+mov ebx,0        ; counter
+
+
+
+CountLoop:
+
+
+lodsb
+
+
+cmp al,'A'
+
+jb Skip
+
+
+cmp al,'Z'
+
+ja Skip
+
+
+
+inc ebx
+
+
+
+Skip:
+
+
+loop CountLoop
+
+
+
+
+mov edx,OFFSET upperMsg
+
+call WriteString
+
+
+mov eax,ebx
+
+call WriteInt
+
+call Crlf
+
+
+
+
+;----------------------------
+; COPY STRING
+;----------------------------
+
+
+mov esi,OFFSET buffer
+
+mov edi,OFFSET copyBuffer
+
+
+mov ecx,100
+
+
+rep movsb
+
+
+
+
+
+;----------------------------
+; CLEAR ORIGINAL BUFFER
+;----------------------------
+
+
+mov edi,OFFSET buffer
+
+
+mov al,0
+
+mov ecx,100
+
+
+rep stosb
+
+
+
+mov edx,OFFSET msg
+
+call WriteString
+
+
+exit
+
+
+main ENDP
+
+
+END main
+TASK 3 — 2D Grade Matrix
+
+Matrix:
+
+4 students
+
+5 quizzes
+
+INCLUDE Irvine32.inc
+
+
+.data
+
+
+grades DWORD 
+
+80,90,70,60,85,
+75,88,92,65,80,
+90,95,85,100,90,
+60,70,75,80,65
+
+
+highest DWORD 0
+
+
+rowMsg BYTE "Student:",0
+
+totalMsg BYTE " Total=",0
+
+avgMsg BYTE " Avg=",0
+
+
+
+.code
+
+
+
+;-----------------------------------
+; DisplayMatrix
+;
+; Uses nested loops
+; Preserves registers
+;-----------------------------------
+
+
+DisplayMatrix PROC
+
+
+push eax
+push ebx
+push ecx
+push edx
+push esi
+
+
+
+mov esi,OFFSET grades
+
+
+mov ebx,4        ; rows
+
+
+
+RowLoop:
+
+
+push ebx
+
+
+mov ecx,5        ; columns
+
+
+mov eax,0        ; total
+
+
+
+ColumnLoop:
+
+
+mov edx,[esi]
+
+
+call WriteInt
+
+
+mov eax,[esi]
+
+add total,eax
+
+
+add esi,4
+
+
+loop ColumnLoop
+
+
+
+call Crlf
+
+
+
+pop ebx
+
+
+dec ebx
+
+
+jnz RowLoop
+
+
+
+
+
+pop esi
+pop edx
+pop ecx
+pop ebx
+pop eax
+
+
+ret
+
+
+DisplayMatrix ENDP
+
+
+
+
+
+
+main PROC
+
+
+
+call DisplayMatrix
+
+
+exit
+
+
+main ENDP
+
+
+END main
+
+
+
+
+
+
+
+
