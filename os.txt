@@ -1,0 +1,3304 @@
+#include<iostream>
+using namespace std;
+
+
+int main()
+{
+
+    // Total number of processes
+    int processes = 5;
+
+    // Total number of resources
+    int resources = 3;
+
+
+
+    // Allocation Matrix
+    // Shows how many resources are already allocated to each process
+
+    int allocation[5][3] =
+    {
+        {0,1,0},
+        {2,0,0},
+        {3,0,2},
+        {2,1,1},
+        {0,0,2}
+    };
+
+
+
+    // Maximum Matrix
+    // Shows maximum resources each process may need
+
+    int max[5][3] =
+    {
+        {7,5,3},
+        {3,2,2},
+        {9,0,2},
+        {2,2,2},
+        {4,3,3}
+    };
+
+
+
+    // Available resources currently free in system
+
+    int available[3] = {3,3,2};
+
+
+
+    // Need matrix stores remaining resources required
+
+    int need[5][3];
+
+
+
+    // Calculate Need Matrix
+    // Formula: Need = Maximum - Allocation
+
+    for(int i=0;i<processes;i++)
+    {
+
+        for(int j=0;j<resources;j++)
+        {
+
+            need[i][j] = max[i][j] - allocation[i][j];
+
+        }
+
+    }
+
+
+
+    // Display Need Matrix
+
+    cout<<"Need Matrix:"<<endl;
+
+
+    for(int i=0;i<processes;i++)
+    {
+
+        for(int j=0;j<resources;j++)
+        {
+
+            cout<<need[i][j]<<" ";
+
+        }
+
+        cout<<endl;
+
+    }
+
+
+
+
+    // Finish array tells whether process completed or not
+
+    bool finish[5]={false};
+
+
+
+    // Stores safe sequence order
+
+    int safeSequence[5];
+
+
+
+    // Counts completed processes
+
+    int count=0;
+
+
+
+
+    // Banker Algorithm starts
+
+    while(count < processes)
+    {
+
+
+        // Checks if any process can execute
+
+        bool found=false;
+
+
+
+        for(int i=0;i<processes;i++)
+        {
+
+
+            // Check only unfinished processes
+
+            if(finish[i]==false)
+            {
+
+
+                bool possible=true;
+
+
+
+                // Compare Need with Available
+
+                for(int j=0;j<resources;j++)
+                {
+
+
+                    // If requirement is greater than available
+                    // process cannot execute
+
+                    if(need[i][j] > available[j])
+                    {
+
+                        possible=false;
+
+                        break;
+
+                    }
+
+                }
+
+
+
+
+                // If process can run
+
+                if(possible)
+                {
+
+
+                    // After process finishes,
+                    // its allocated resources return back
+
+                    for(int j=0;j<resources;j++)
+                    {
+
+                        available[j] += allocation[i][j];
+
+                    }
+
+
+
+                    // Store process in safe sequence
+
+                    safeSequence[count]=i;
+
+
+                    count++;
+
+
+                    // Mark process completed
+
+                    finish[i]=true;
+
+
+
+                    found=true;
+
+
+                }
+
+
+            }
+
+
+        }
+
+
+
+
+        // If no process can execute
+        // System is unsafe
+
+        if(found==false)
+        {
+
+            cout<<"System is Unsafe";
+
+            return 0;
+
+        }
+
+
+
+    }
+
+
+
+    // If all processes complete
+
+    cout<<"System is Safe"<<endl;
+
+
+
+    cout<<"Safe Sequence: ";
+
+
+
+    for(int i=0;i<processes;i++)
+    {
+
+        cout<<"P"<<safeSequence[i]<<" ";
+
+    }
+
+
+
+return 0;
+
+}
+
+
+
+
+
+
+
+
+
+#include<iostream>
+using namespace std;
+
+
+int main()
+{
+
+    // Number of processes
+    int processes=5;
+
+
+    // Number of resources
+    int resources=3;
+
+
+
+    // Current allocated resources
+
+    int allocation[5][3]=
+    {
+        {0,1,0},
+        {2,0,0},
+        {3,0,3},
+        {2,1,1},
+        {0,0,2}
+    };
+
+
+
+    // Resources requested by each process
+
+    int request[5][3]=
+    {
+        {0,0,0},
+        {2,0,2},
+        {0,0,1},
+        {1,0,0},
+        {0,0,2}
+    };
+
+
+
+    // Available resources
+
+    int available[3]={0,0,0};
+
+
+
+    // Shows process completion
+
+    bool finish[5]={false};
+
+
+
+    // Checking every process
+
+    for(int i=0;i<processes;i++)
+    {
+
+
+        bool canRun=true;
+
+
+
+        // Compare request with available
+
+        for(int j=0;j<resources;j++)
+        {
+
+
+            if(request[i][j] > available[j])
+            {
+
+                canRun=false;
+
+            }
+
+        }
+
+
+
+        // Process can finish
+
+        if(canRun)
+        {
+
+            finish[i]=true;
+
+        }
+
+
+    }
+
+
+
+
+    cout<<"Deadlocked Processes:"<<endl;
+
+
+
+    bool deadlock=false;
+
+
+
+    // Processes which are not finished are deadlocked
+
+    for(int i=0;i<processes;i++)
+    {
+
+
+        if(finish[i]==false)
+        {
+
+            cout<<"P"<<i<<endl;
+
+
+            deadlock=true;
+
+        }
+
+
+    }
+
+
+
+    if(deadlock==false)
+    {
+
+        cout<<"No Deadlock";
+
+    }
+
+
+
+return 0;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+Resource Preemption Program (With Comments)
+
+File Name: Resource_Preemption.cpp
+
+#include<iostream>
+using namespace std;
+
+
+int main()
+{
+
+    // Variable to store resource number
+    int resource;
+
+
+
+    // Asking user which resource should be taken back
+    cout<<"Enter resource number to take back: ";
+
+
+    // Taking input from user
+    cin>>resource;
+
+
+
+    // Simulating resource preemption
+    // Resource is removed from the process
+
+    cout<<"Resource R"<<resource<<" preempted";
+
+
+
+    return 0;
+
+}
+2) Dynamic Banker’s Algorithm (With Comments)
+
+File Name: Dynamic_Banker.cpp
+
+#include<iostream>
+using namespace std;
+
+
+int main()
+{
+
+
+// p = number of processes
+// r = number of resources
+
+int p,r;
+
+
+
+// Taking number of processes from user
+
+cout<<"Enter number of processes: ";
+cin>>p;
+
+
+
+// Taking number of resources from user
+
+cout<<"Enter number of resources: ";
+cin>>r;
+
+
+
+
+// Allocation matrix stores currently allocated resources
+
+int allocation[p][r];
+
+
+// Maximum matrix stores maximum requirement of processes
+
+int max[p][r];
+
+
+// Need matrix stores remaining resources needed
+
+int need[p][r];
+
+
+// Available resources in system
+
+int available[r];
+
+
+
+
+
+// Input Allocation Matrix
+
+cout<<"Enter Allocation Matrix:"<<endl;
+
+
+for(int i=0;i<p;i++)
+{
+
+    for(int j=0;j<r;j++)
+    {
+
+        cin>>allocation[i][j];
+
+    }
+
+}
+
+
+
+
+// Input Maximum Matrix
+
+cout<<"Enter Max Matrix:"<<endl;
+
+
+for(int i=0;i<p;i++)
+{
+
+    for(int j=0;j<r;j++)
+    {
+
+        cin>>max[i][j];
+
+    }
+
+}
+
+
+
+
+// Input available resources
+
+cout<<"Enter Available Resources:"<<endl;
+
+
+for(int i=0;i<r;i++)
+{
+
+    cin>>available[i];
+
+}
+
+
+
+
+
+// Calculating Need Matrix
+
+// Formula:
+// Need = Max - Allocation
+
+
+for(int i=0;i<p;i++)
+{
+
+    for(int j=0;j<r;j++)
+    {
+
+        need[i][j]=max[i][j]-allocation[i][j];
+
+    }
+
+}
+
+
+
+
+// finish array checks whether process completed or not
+
+bool finish[p]={false};
+
+
+
+// Stores safe sequence
+
+int sequence[p];
+
+
+
+// Counts completed processes
+
+int count=0;
+
+
+
+
+
+// Banker Algorithm starts
+
+while(count<p)
+{
+
+
+// Tells whether any process can execute
+
+bool found=false;
+
+
+
+
+// Checking every process
+
+for(int i=0;i<p;i++)
+{
+
+
+// Only check unfinished processes
+
+if(!finish[i])
+{
+
+
+bool check=true;
+
+
+
+
+// Checking Need <= Available
+
+for(int j=0;j<r;j++)
+{
+
+
+if(need[i][j]>available[j])
+{
+
+    // Process cannot execute
+
+    check=false;
+
+}
+
+
+}
+
+
+
+
+// If process can execute
+
+if(check)
+{
+
+
+// After completion,
+// allocated resources return back
+
+for(int j=0;j<r;j++)
+{
+
+    available[j]+=allocation[i][j];
+
+}
+
+
+
+// Store process number in sequence
+
+sequence[count]=i;
+
+
+// Increase completed count
+
+count++;
+
+
+// Mark process finished
+
+finish[i]=true;
+
+
+// A process was found
+
+found=true;
+
+
+}
+
+
+}
+
+
+}
+
+
+
+
+
+// If no process can execute
+// System is unsafe
+
+if(!found)
+{
+
+cout<<"Unsafe State";
+
+return 0;
+
+}
+
+
+}
+
+
+
+
+
+// All processes completed
+
+cout<<"Safe State"<<endl;
+
+
+
+cout<<"Sequence: ";
+
+
+// Printing safe sequence
+
+for(int i=0;i<p;i++)
+{
+
+cout<<"P"<<sequence[i]<<" ";
+
+}
+
+
+
+return 0;
+
+}
+3) Resource Allocation Graph Cycle Detection (With Comments)
+
+File Name: Resource_Graph.cpp
+
+#include<iostream>
+using namespace std;
+
+
+
+
+// Graph adjacency matrix
+
+int graph[10][10];
+
+
+
+// Stores visited nodes
+
+bool visited[10];
+
+
+
+// Stores current recursion path
+
+// Used to detect cycle
+
+bool stackNode[10];
+
+
+
+
+
+
+// Function to detect cycle using DFS
+
+bool cycle(int node,int n)
+{
+
+
+// Mark current node visited
+
+visited[node]=true;
+
+
+
+// Add node into recursion stack
+
+stackNode[node]=true;
+
+
+
+
+
+
+// Check all connected nodes
+
+for(int i=0;i<n;i++)
+{
+
+
+// If edge exists
+
+if(graph[node][i])
+{
+
+
+// If node not visited and cycle found
+
+if(!visited[i] && cycle(i,n))
+{
+
+return true;
+
+}
+
+
+
+
+// If node already exists in current path
+// then cycle exists
+
+else if(stackNode[i])
+{
+
+return true;
+
+}
+
+
+
+}
+
+
+}
+
+
+
+
+// Remove node from recursion stack
+
+stackNode[node]=false;
+
+
+
+// No cycle found
+
+return false;
+
+
+}
+
+
+
+
+
+
+
+int main()
+{
+
+
+// Number of nodes in graph
+
+int n;
+
+
+
+cout<<"Enter number of nodes: ";
+
+cin>>n;
+
+
+
+
+// Taking graph input
+
+cout<<"Enter Resource Allocation Graph:"<<endl;
+
+
+
+
+for(int i=0;i<n;i++)
+{
+
+
+for(int j=0;j<n;j++)
+{
+
+
+cin>>graph[i][j];
+
+
+}
+
+
+}
+
+
+
+
+
+// Checking every node for cycle
+
+for(int i=0;i<n;i++)
+{
+
+
+if(!visited[i] && cycle(i,n))
+{
+
+
+cout<<"Cycle detected -> Deadlock exists";
+
+
+return 0;
+
+
+}
+
+
+}
+
+
+
+
+// If no cycle found
+
+cout<<"No Cycle -> No Deadlock";
+
+
+
+
+return 0;
+
+}
+
+
+
+
+
+
+
+Question 1: Reader–Writer Problem
+File Name: Reader_Writer.cpp
+Concept:
+Multiple readers can read at the same time.
+Only one writer can write.
+Semaphore controls access.
+#include<iostream>
+#include<thread>      // For creating threads
+#include<semaphore>   // For semaphore
+using namespace std;
+
+
+
+// Shared resource
+int data = 0;
+
+
+// Semaphore for controlling writer access
+binary_semaphore writeLock(1);
+
+
+// Counting readers
+int readerCount = 0;
+
+
+// Semaphore for protecting readerCount
+binary_semaphore mutex(1);
+
+
+
+
+// Reader Function
+
+void reader(int id)
+{
+
+    // Enter critical section to update reader count
+
+    mutex.acquire();
+
+
+
+    readerCount++;
+
+
+
+    // First reader blocks writer
+
+    if(readerCount == 1)
+    {
+
+        writeLock.acquire();
+
+    }
+
+
+
+    // Release mutex
+
+    mutex.release();
+
+
+
+
+    // Reading shared data
+
+    cout<<"Reader "<<id<<" is reading data = "<<data<<endl;
+
+
+
+
+    // Reader finished
+
+
+
+    mutex.acquire();
+
+
+
+    readerCount--;
+
+
+
+    // Last reader allows writer
+
+    if(readerCount == 0)
+    {
+
+        writeLock.release();
+
+    }
+
+
+
+    mutex.release();
+
+
+}
+
+
+
+
+
+
+// Writer Function
+
+void writer(int id)
+{
+
+    // Writer gets lock
+    // Only one writer allowed
+
+    writeLock.acquire();
+
+
+
+    // Writing data
+
+    data++;
+
+
+    cout<<"Writer "<<id<<" is writing data = "<<data<<endl;
+
+
+
+
+    // Release lock
+
+    writeLock.release();
+
+
+}
+
+
+
+
+
+
+int main()
+{
+
+
+    // Creating reader threads
+
+    thread r1(reader,1);
+
+    thread r2(reader,2);
+
+
+
+
+    // Creating writer threads
+
+    thread w1(writer,1);
+
+    thread w2(writer,2);
+
+
+
+
+    // Waiting for threads to finish
+
+    r1.join();
+
+    r2.join();
+
+
+    w1.join();
+
+    w2.join();
+
+
+
+
+    return 0;
+
+}
+
+
+
+
+
+
+
+
+
+Producer Consumer Problem
+Buffer Size = 5
+File Name: Producer_Consumer.cpp
+Concept:
+
+Semaphore:
+
+Semaphore	Purpose
+empty	Empty spaces in buffer
+full	Items available
+mutex	Protect buffer
+#include<iostream>
+#include<thread>
+#include<semaphore>
+
+using namespace std;
+
+
+
+// Buffer size
+
+#define SIZE 5
+
+
+
+// Shared buffer
+
+int buffer[SIZE];
+
+
+
+// Index for inserting item
+
+int in = 0;
+
+
+// Index for removing item
+
+int out = 0;
+
+
+
+
+// Initially buffer is empty
+
+counting_semaphore<SIZE> empty(SIZE);
+
+
+
+// Initially no item available
+
+counting_semaphore<SIZE> full(0);
+
+
+
+// Mutex for protecting buffer
+
+binary_semaphore mutex(1);
+
+
+
+
+
+// Producer Function
+
+void producer(int id)
+{
+
+
+    for(int i=1;i<=5;i++)
+    {
+
+
+        // Wait if buffer is full
+
+        empty.acquire();
+
+
+
+        // Lock buffer
+
+        mutex.acquire();
+
+
+
+
+        // Produce item
+
+        buffer[in]=i;
+
+
+
+        cout<<"Producer "<<id
+        <<" produced item "
+        <<i<<endl;
+
+
+
+
+        // Move insertion index
+
+        in=(in+1)%SIZE;
+
+
+
+
+        // Unlock buffer
+
+        mutex.release();
+
+
+
+        // Increase full items
+
+        full.release();
+
+
+
+    }
+
+
+}
+
+
+
+
+
+
+// Consumer Function
+
+void consumer(int id)
+{
+
+
+    for(int i=1;i<=5;i++)
+    {
+
+
+        // Wait if buffer is empty
+
+        full.acquire();
+
+
+
+        // Lock buffer
+
+        mutex.acquire();
+
+
+
+
+        // Consume item
+
+        int item=buffer[out];
+
+
+
+        cout<<"Consumer "<<id
+        <<" consumed item "
+        <<item<<endl;
+
+
+
+
+        // Move removal index
+
+        out=(out+1)%SIZE;
+
+
+
+
+        // Unlock buffer
+
+        mutex.release();
+
+
+
+
+        // Increase empty spaces
+
+        empty.release();
+
+
+
+    }
+
+
+}
+
+
+
+
+
+int main()
+{
+
+
+    // Creating producer threads
+
+    thread p1(producer,1);
+
+    thread p2(producer,2);
+
+
+
+
+    // Creating consumer threads
+
+    thread c1(consumer,1);
+
+    thread c2(consumer,2);
+
+
+
+
+
+    // Waiting for completion
+
+    p1.join();
+
+    p2.join();
+
+
+    c1.join();
+
+    c2.join();
+
+
+
+
+    return 0;
+
+}
+
+
+
+
+
+
+
+
+
+Best Fit, Worst Fit, Next Fit + Fragmentation
+File Name: Memory_Allocation.cpp
+#include<iostream>
+using namespace std;
+
+
+
+// Function for Best Fit
+
+void bestFit(int blocks[], int b, int process[], int p)
+{
+
+
+    // Copy blocks because every algorithm needs original memory
+
+    int temp[10];
+
+
+    for(int i=0;i<b;i++)
+    {
+
+        temp[i]=blocks[i];
+
+    }
+
+
+
+    cout<<"\n--- Best Fit Allocation ---"<<endl;
+
+
+
+    // Checking every process
+
+    for(int i=0;i<p;i++)
+    {
+
+
+        int index=-1;
+
+
+
+        // Find smallest suitable block
+
+        for(int j=0;j<b;j++)
+        {
+
+
+            if(temp[j]>=process[i])
+            {
+
+
+                if(index==-1 || temp[j]<temp[index])
+                {
+
+                    index=j;
+
+                }
+
+
+            }
+
+
+        }
+
+
+
+
+        // If block found
+
+        if(index!=-1)
+        {
+
+
+            cout<<"Process "<<i+1
+            <<" allocated in Block "
+            <<index+1<<endl;
+
+
+
+            // Remaining memory
+
+            temp[index]-=process[i];
+
+
+        }
+
+
+        else
+        {
+
+            cout<<"Process "<<i+1
+            <<" not allocated"<<endl;
+
+        }
+
+
+
+    }
+
+
+
+
+    fragmentation(temp,b);
+
+
+}
+
+
+
+
+
+
+// Function for Worst Fit
+
+void worstFit(int blocks[], int b, int process[], int p)
+{
+
+
+    int temp[10];
+
+
+    for(int i=0;i<b;i++)
+    {
+
+        temp[i]=blocks[i];
+
+    }
+
+
+
+    cout<<"\n--- Worst Fit Allocation ---"<<endl;
+
+
+
+    for(int i=0;i<p;i++)
+    {
+
+
+        int index=-1;
+
+
+
+        // Find largest block
+
+        for(int j=0;j<b;j++)
+        {
+
+
+            if(temp[j]>=process[i])
+            {
+
+
+                if(index==-1 || temp[j]>temp[index])
+                {
+
+                    index=j;
+
+                }
+
+
+            }
+
+
+        }
+
+
+
+
+        if(index!=-1)
+        {
+
+
+            cout<<"Process "<<i+1
+            <<" allocated in Block "
+            <<index+1<<endl;
+
+
+            temp[index]-=process[i];
+
+
+        }
+
+        else
+        {
+
+            cout<<"Process "<<i+1
+            <<" not allocated"<<endl;
+
+        }
+
+
+
+    }
+
+
+
+    fragmentation(temp,b);
+
+
+
+}
+
+
+
+
+
+
+
+
+// Function for Next Fit
+
+void nextFit(int blocks[],int b,int process[],int p)
+{
+
+
+    int temp[10];
+
+
+    for(int i=0;i<b;i++)
+    {
+
+        temp[i]=blocks[i];
+
+    }
+
+
+
+    cout<<"\n--- Next Fit Allocation ---"<<endl;
+
+
+
+    // Start searching from first block
+
+    int start=0;
+
+
+
+    for(int i=0;i<p;i++)
+    {
+
+
+        bool allocated=false;
+
+
+
+        for(int j=0;j<b;j++)
+        {
+
+
+            int index=(start+j)%b;
+
+
+
+            if(temp[index]>=process[i])
+            {
+
+
+                cout<<"Process "<<i+1
+                <<" allocated in Block "
+                <<index+1<<endl;
+
+
+
+                temp[index]-=process[i];
+
+
+                start=index;
+
+
+                allocated=true;
+
+
+                break;
+
+
+            }
+
+
+        }
+
+
+
+
+        if(!allocated)
+        {
+
+            cout<<"Process "<<i+1
+            <<" not allocated"<<endl;
+
+        }
+
+
+
+    }
+
+
+
+
+    fragmentation(temp,b);
+
+
+
+}
+
+
+
+
+
+
+
+
+// Fragmentation calculation
+
+void fragmentation(int memory[],int b)
+{
+
+
+    int total=0;
+
+
+
+    cout<<"Remaining Memory:"<<endl;
+
+
+
+    for(int i=0;i<b;i++)
+    {
+
+
+        cout<<"Block "<<i+1
+        <<" = "
+        <<memory[i]<<endl;
+
+
+
+        // Adding unused memory
+
+        total+=memory[i];
+
+
+    }
+
+
+
+
+    cout<<"Total Unused Memory = "
+    <<total<<endl;
+
+
+
+
+}
+
+
+
+
+
+
+int main()
+{
+
+
+    // Memory blocks
+
+    int blocks[]={100,500,200,300,600};
+
+
+
+    // Number of blocks
+
+    int b=5;
+
+
+
+
+    // Process sizes
+
+    int process[]={212,417,112,426};
+
+
+
+    // Number of processes
+
+    int p=4;
+
+
+
+
+
+    // Running all algorithms
+
+    bestFit(blocks,b,process,p);
+
+
+    worstFit(blocks,b,process,p);
+
+
+    nextFit(blocks,b,process,p);
+
+
+
+
+
+    return 0;
+
+}
+
+
+
+
+
+
+
+
+: Dynamic Memory Allocation
+
+User can:
+
+Add new processes
+Allocate again
+Memory is not reset
+File Name: Dynamic_Memory.cpp
+#include<iostream>
+using namespace std;
+
+
+
+int main()
+{
+
+
+    int blocks[10];
+
+
+    int b;
+
+
+
+    // Taking memory blocks
+
+    cout<<"Enter number of blocks: ";
+
+    cin>>b;
+
+
+
+    cout<<"Enter block sizes:"<<endl;
+
+
+
+    for(int i=0;i<b;i++)
+    {
+
+        cin>>blocks[i];
+
+    }
+
+
+
+
+    int choice;
+
+
+
+    do
+    {
+
+
+
+    int size;
+
+
+
+    // Add new process
+
+    cout<<"\nEnter process size: ";
+
+    cin>>size;
+
+
+
+
+
+    int index=-1;
+
+
+
+
+    // First Fit allocation
+
+    for(int i=0;i<b;i++)
+    {
+
+
+        if(blocks[i]>=size)
+        {
+
+
+            index=i;
+
+
+            break;
+
+
+        }
+
+
+    }
+
+
+
+
+
+    if(index!=-1)
+    {
+
+
+        cout<<"Process allocated in Block "
+        <<index+1<<endl;
+
+
+
+        // Reduce available memory
+
+        blocks[index]-=size;
+
+
+    }
+
+
+    else
+    {
+
+        cout<<"Process cannot be allocated"<<endl;
+
+    }
+
+
+
+
+
+
+    // Display updated memory
+
+    cout<<"\nUpdated Memory:"<<endl;
+
+
+
+    for(int i=0;i<b;i++)
+    {
+
+
+        cout<<"Block "
+        <<i+1
+        <<" = "
+        <<blocks[i]<<endl;
+
+
+    }
+
+
+
+
+
+    cout<<"\nAdd another process? (1=yes 0=no): ";
+
+    cin>>choice;
+
+
+
+
+    }
+
+    while(choice==1);
+
+
+
+
+
+    return 0;
+
+}
+
+
+
+
+
+
+
+
+
+
+FCFS vs SCAN Comparison
+File Name: FCFS_SCAN.cpp
+#include<iostream>
+#include<vector>
+#include<algorithm>
+
+using namespace std;
+
+
+
+// Function for FCFS Disk Scheduling
+
+int FCFS(vector<int> request, int head)
+{
+
+    int totalSeek = 0;
+
+
+    cout<<"FCFS Order: ";
+
+    
+    // Process requests in given order
+
+    for(int i=0;i<request.size();i++)
+    {
+
+
+        cout<<request[i]<<" ";
+
+
+        // Calculate head movement
+
+        totalSeek += abs(head-request[i]);
+
+
+        // Move head
+
+        head=request[i];
+
+
+    }
+
+
+    cout<<endl;
+
+
+    return totalSeek;
+
+}
+
+
+
+
+
+// Function for SCAN Disk Scheduling
+
+int SCAN(vector<int> request,int head,int diskSize)
+{
+
+
+    int totalSeek=0;
+
+
+
+    vector<int> left;
+
+    vector<int> right;
+
+
+
+    // Divide requests according to head position
+
+    for(int i=0;i<request.size();i++)
+    {
+
+
+        if(request[i]<head)
+
+            left.push_back(request[i]);
+
+
+        else
+
+            right.push_back(request[i]);
+
+
+    }
+
+
+
+
+    // Sort both sides
+
+    sort(left.begin(),left.end());
+
+    sort(right.begin(),right.end());
+
+
+
+
+
+    cout<<"SCAN Order: ";
+
+
+
+
+
+    // First move towards right
+
+    for(int i=0;i<right.size();i++)
+    {
+
+
+        cout<<right[i]<<" ";
+
+
+        totalSeek += abs(head-right[i]);
+
+
+        head=right[i];
+
+
+    }
+
+
+
+
+
+    // Move to end of disk
+
+    totalSeek += abs(head-(diskSize-1));
+
+
+    head=diskSize-1;
+
+
+
+
+
+
+    // Then reverse direction
+
+    for(int i=left.size()-1;i>=0;i--)
+    {
+
+
+        cout<<left[i]<<" ";
+
+
+        totalSeek += abs(head-left[i]);
+
+
+        head=left[i];
+
+
+    }
+
+
+
+    cout<<endl;
+
+
+
+    return totalSeek;
+
+
+}
+
+
+
+
+
+int main()
+{
+
+
+    // Disk requests
+
+    vector<int> request={98,183,37,122,14,124,65,67};
+
+
+
+    // Initial head position
+
+    int head=53;
+
+
+
+    // Disk size
+
+    int diskSize=200;
+
+
+
+
+    int fcfsTime = FCFS(request,head);
+
+
+    int scanTime = SCAN(request,head,diskSize);
+
+
+
+
+
+    cout<<"\nComparison Table\n";
+
+
+    cout<<"Algorithm\tTotal Seek Time"<<endl;
+
+
+
+    cout<<"FCFS\t\t"<<fcfsTime<<endl;
+
+
+    cout<<"SCAN\t\t"<<scanTime<<endl;
+
+
+
+
+    cout<<"\nAverage Seek Time:"<<endl;
+
+
+    cout<<"FCFS = "
+    <<fcfsTime/request.size()<<endl;
+
+
+    cout<<"SCAN = "
+    <<scanTime/request.size()<<endl;
+
+
+
+
+    return 0;
+
+}
+
+
+
+
+
+Question 2: Multiple Request Queues
+File Name: Multiple_Queue.cpp
+#include<iostream>
+#include<vector>
+
+using namespace std;
+
+
+
+// Reusing FCFS function
+
+int FCFS(vector<int> q,int head)
+{
+
+int seek=0;
+
+
+
+for(int i=0;i<q.size();i++)
+{
+
+seek += abs(head-q[i]);
+
+
+head=q[i];
+
+}
+
+
+return seek;
+
+}
+
+
+
+
+int main()
+{
+
+
+// Multiple disk queues
+
+vector<int> queue1={50,120,30};
+
+vector<int> queue2={80,10,150};
+
+vector<int> queue3={90,40,70};
+
+
+
+int head=50;
+
+
+
+
+cout<<"Queue 1 Seek Time: ";
+
+cout<<FCFS(queue1,head)<<endl;
+
+
+
+
+cout<<"Queue 2 Seek Time: ";
+
+cout<<FCFS(queue2,head)<<endl;
+
+
+
+
+cout<<"Queue 3 Seek Time: ";
+
+cout<<FCFS(queue3,head)<<endl;
+
+
+
+
+return 0;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+Hospital Database Disk Management
+
+Scenario:
+Patient records are stored on disk.
+
+File Name: Hospital_Disk.cpp
+#include<iostream>
+#include<vector>
+
+using namespace std;
+
+
+
+int FCFS(vector<int> records,int head)
+{
+
+
+int total=0;
+
+
+
+cout<<"Patient Record Access Order:"<<endl;
+
+
+
+for(int i=0;i<records.size();i++)
+{
+
+
+cout<<"Record "<<records[i]<<endl;
+
+
+
+// Calculate movement
+
+total += abs(head-records[i]);
+
+
+
+head=records[i];
+
+
+}
+
+
+
+return total;
+
+}
+
+
+
+
+
+int main()
+{
+
+
+// Patient record locations
+
+vector<int> patientRequests=
+{120,30,80,200,50};
+
+
+
+int head=100;
+
+
+
+int result=FCFS(patientRequests,head);
+
+
+
+cout<<"Total Seek Time = "
+<<result;
+
+
+
+return 0;
+
+
+}
+Question 4: Cloud Storage Request Handling
+File Name: Cloud_Storage.cpp
+#include<iostream>
+#include<vector>
+
+using namespace std;
+
+
+
+// FCFS handles continuous requests
+
+int FCFS(vector<int> requests,int head)
+{
+
+
+int total=0;
+
+
+
+cout<<"Cloud Request Order:"<<endl;
+
+
+
+for(int i=0;i<requests.size();i++)
+{
+
+
+cout<<"Request "<<requests[i]<<endl;
+
+
+
+total += abs(head-requests[i]);
+
+
+
+head=requests[i];
+
+
+}
+
+
+
+return total;
+
+
+}
+
+
+
+
+
+int main()
+{
+
+
+// Read/write requests
+
+vector<int> cloudRequests=
+{45,130,20,180,70};
+
+
+
+int head=60;
+
+
+
+
+int seek=FCFS(cloudRequests,head);
+
+
+
+cout<<"\nCloud Storage Report"<<endl;
+
+
+cout<<"Total Head Movement = "
+<<seek<<endl;
+
+
+
+cout<<"Average Seek Time = "
+<<seek/cloudRequests.size();
+
+
+
+return 0;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+LOOK Algorithm
+File Name: LOOK_Algorithm.cpp
+#include<iostream>
+#include<vector>
+#include<algorithm>
+
+using namespace std;
+
+
+
+// Function to implement LOOK Algorithm
+
+int LOOK(vector<int> request, int head)
+{
+
+
+    // Stores total head movement
+
+    int seekTime = 0;
+
+
+
+    // Store requests smaller than head
+
+    vector<int> left;
+
+
+
+    // Store requests greater than head
+
+    vector<int> right;
+
+
+
+
+    // Dividing requests
+
+    for(int i=0;i<request.size();i++)
+    {
+
+
+        if(request[i] < head)
+
+            left.push_back(request[i]);
+
+
+        else
+
+            right.push_back(request[i]);
+
+
+    }
+
+
+
+
+    // Sorting both sides
+
+    sort(left.begin(),left.end());
+
+    sort(right.begin(),right.end());
+
+
+
+
+    cout<<"LOOK Seek Sequence: ";
+
+
+
+
+
+    // Move towards right side first
+
+    for(int i=0;i<right.size();i++)
+    {
+
+
+        cout<<right[i]<<" ";
+
+
+
+        // Calculate movement
+
+        seekTime += abs(head-right[i]);
+
+
+
+        // Move head
+
+        head = right[i];
+
+
+    }
+
+
+
+
+    // Reverse direction
+    // LOOK stops at last request
+    // It does not go to disk end
+
+
+    for(int i=left.size()-1;i>=0;i--)
+    {
+
+
+        cout<<left[i]<<" ";
+
+
+
+        seekTime += abs(head-left[i]);
+
+
+
+        head=left[i];
+
+
+    }
+
+
+
+
+    cout<<endl;
+
+
+
+    return seekTime;
+
+}
+
+
+
+
+
+int main()
+{
+
+
+    int n;
+
+
+
+    // Taking number of requests
+
+    cout<<"Enter number of requests: ";
+
+    cin>>n;
+
+
+
+
+    vector<int> request(n);
+
+
+
+
+    // Taking request queue
+
+    cout<<"Enter disk requests:"<<endl;
+
+
+
+    for(int i=0;i<n;i++)
+    {
+
+        cin>>request[i];
+
+    }
+
+
+
+
+    int head;
+
+
+
+    // Initial head position
+
+    cout<<"Enter initial head position: ";
+
+    cin>>head;
+
+
+
+
+
+    int result = LOOK(request,head);
+
+
+
+
+    cout<<"Total Seek Time = "
+    <<result;
+
+
+
+    return 0;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+C-SCAN Algorithm
+File Name: CSCAN_Algorithm.cpp
+#include<iostream>
+#include<vector>
+#include<algorithm>
+
+using namespace std;
+
+
+
+
+
+// Function for C-SCAN Algorithm
+
+int CSCAN(vector<int> request,int head,int diskSize)
+{
+
+
+    int seekTime=0;
+
+
+
+    vector<int> left;
+
+    vector<int> right;
+
+
+
+
+
+    // Divide requests
+
+    for(int i=0;i<request.size();i++)
+    {
+
+
+        if(request[i]<head)
+
+            left.push_back(request[i]);
+
+
+        else
+
+            right.push_back(request[i]);
+
+
+    }
+
+
+
+
+    // Sort requests
+
+    sort(left.begin(),left.end());
+
+    sort(right.begin(),right.end());
+
+
+
+
+
+    cout<<"C-SCAN Seek Sequence: ";
+
+
+
+
+
+
+    // Move only upward direction
+
+    for(int i=0;i<right.size();i++)
+    {
+
+
+        cout<<right[i]<<" ";
+
+
+
+        seekTime += abs(head-right[i]);
+
+
+
+        head=right[i];
+
+
+    }
+
+
+
+
+
+
+    // Move to last cylinder
+
+    seekTime += abs(head-(diskSize-1));
+
+
+
+    head=diskSize-1;
+
+
+
+
+
+
+    // Jump back to beginning
+
+    cout<<"0 ";
+
+
+
+    seekTime += diskSize-1;
+
+
+
+    head=0;
+
+
+
+
+
+
+    // Continue remaining requests
+
+    for(int i=0;i<left.size();i++)
+    {
+
+
+        cout<<left[i]<<" ";
+
+
+
+        seekTime += abs(head-left[i]);
+
+
+
+        head=left[i];
+
+
+    }
+
+
+
+
+
+    cout<<endl;
+
+
+
+    return seekTime;
+
+
+}
+
+
+
+
+
+
+
+int main()
+{
+
+
+int n;
+
+
+
+cout<<"Enter number of requests: ";
+
+cin>>n;
+
+
+
+
+vector<int> request(n);
+
+
+
+cout<<"Enter disk requests:"<<endl;
+
+
+
+for(int i=0;i<n;i++)
+{
+
+cin>>request[i];
+
+}
+
+
+
+
+int head;
+
+
+
+cout<<"Enter initial head position: ";
+
+cin>>head;
+
+
+
+
+int size;
+
+
+
+cout<<"Enter disk size: ";
+
+cin>>size;
+
+
+
+
+
+int result=CSCAN(request,head,size);
+
+
+
+
+
+cout<<"Total Seek Time = "
+<<result;
+
+
+
+return 0;
+
+
+}
+Question 3: LOOK vs C-SCAN Comparison
+File Name: LOOK_vs_CSCAN.cpp
+#include<iostream>
+#include<vector>
+#include<algorithm>
+
+using namespace std;
+
+
+
+
+
+// LOOK Algorithm
+
+int LOOK(vector<int> request,int head)
+{
+
+
+int seek=0;
+
+
+vector<int> left,right;
+
+
+
+
+for(int i=0;i<request.size();i++)
+{
+
+
+if(request[i]<head)
+
+left.push_back(request[i]);
+
+
+else
+
+right.push_back(request[i]);
+
+
+}
+
+
+
+
+
+sort(left.begin(),left.end());
+
+sort(right.begin(),right.end());
+
+
+
+
+
+cout<<"LOOK Order: ";
+
+
+
+
+for(int i=0;i<right.size();i++)
+{
+
+
+cout<<right[i]<<" ";
+
+
+seek += abs(head-right[i]);
+
+
+head=right[i];
+
+
+}
+
+
+
+
+for(int i=left.size()-1;i>=0;i--)
+{
+
+
+cout<<left[i]<<" ";
+
+
+seek += abs(head-left[i]);
+
+
+head=left[i];
+
+
+}
+
+
+
+
+cout<<endl;
+
+
+
+return seek;
+
+
+}
+
+
+
+
+
+
+
+// C-SCAN Algorithm
+
+int CSCAN(vector<int> request,int head,int size)
+{
+
+
+int seek=0;
+
+
+
+vector<int> left,right;
+
+
+
+for(int i=0;i<request.size();i++)
+{
+
+
+if(request[i]<head)
+
+left.push_back(request[i]);
+
+
+else
+
+right.push_back(request[i]);
+
+
+}
+
+
+
+
+sort(left.begin(),left.end());
+
+sort(right.begin(),right.end());
+
+
+
+
+
+cout<<"C-SCAN Order: ";
+
+
+
+
+
+for(int i=0;i<right.size();i++)
+{
+
+
+cout<<right[i]<<" ";
+
+
+seek+=abs(head-right[i]);
+
+
+head=right[i];
+
+
+}
+
+
+
+
+
+// Go to end
+
+seek+=abs(head-(size-1));
+
+
+head=size-1;
+
+
+
+
+
+// Jump to start
+
+cout<<"0 ";
+
+
+seek+=size-1;
+
+
+head=0;
+
+
+
+
+
+
+for(int i=0;i<left.size();i++)
+{
+
+
+cout<<left[i]<<" ";
+
+
+seek+=abs(head-left[i]);
+
+
+head=left[i];
+
+
+}
+
+
+
+
+cout<<endl;
+
+
+
+return seek;
+
+
+}
+
+
+
+
+
+
+
+int main()
+{
+
+
+int n;
+
+
+
+cout<<"Enter number of requests: ";
+
+cin>>n;
+
+
+
+vector<int> request(n);
+
+
+
+cout<<"Enter requests:"<<endl;
+
+
+
+for(int i=0;i<n;i++)
+{
+
+cin>>request[i];
+
+}
+
+
+
+
+
+int head;
+
+
+cout<<"Enter head position: ";
+
+cin>>head;
+
+
+
+
+
+int disk;
+
+
+cout<<"Enter disk size: ";
+
+cin>>disk;
+
+
+
+
+
+
+int lookTime=LOOK(request,head);
+
+
+
+int cscanTime=CSCAN(request,head,disk);
+
+
+
+
+
+
+
+cout<<"\nPerformance Comparison\n";
+
+
+
+cout<<"Algorithm\tSeek Time"<<endl;
+
+
+
+cout<<"LOOK\t\t"
+<<lookTime<<endl;
+
+
+
+cout<<"C-SCAN\t\t"
+<<cscanTime<<endl;
+
+
+
+
+
+
+
+if(lookTime<cscanTime)
+{
+
+
+cout<<"\nLOOK is more efficient";
+
+cout<<"\nReason: Less head movement";
+
+
+}
+
+else
+{
+
+
+cout<<"\nC-SCAN is more efficient";
+
+cout<<"\nReason: Better circular fairness";
+
+
+}
+
+
+
+
+
+return 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
